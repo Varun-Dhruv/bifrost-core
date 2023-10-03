@@ -1,0 +1,12 @@
+Django
+django-celery
+djangorestframework
+markdown
+django-filter
+pip-tools
+dj-database-url
+celery
+python-dotenv
+pre-commit
+apache-beam
+psycopg2-binary

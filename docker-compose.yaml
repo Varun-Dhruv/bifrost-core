@@ -1,0 +1,45 @@
+version: '3.0'
+volumes:
+  postgres_data:
+
+services:
+  app:
+    image: "varun10000/bifrost-core:latest"
+    container_name: bifrost-core
+    command: sh -c "
+              cd app &&
+              python manage.py makemigrations &&
+              python manage.py migrate &&
+              python manage.py runserver 0.0.0.0:80"
+    build:
+      context: ./src
+      dockerfile: Dockerfile
+    restart: always
+    env_file:
+      - ./envs/.env.production
+    ports:
+      - 8000:80
+    profiles:
+      - "dev"
+    volumes:
+      - ./src/app:/code/app
+    depends_on:
+      - postgres
+  postgres:
+    image: postgres:14.0
+    container_name: postgres
+    restart: always
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - ./envs/.env.production
+    ports:
+      - 5432:5432
+    profiles:
+      - "dev"
+      - "database"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5

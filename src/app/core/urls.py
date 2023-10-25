@@ -7,5 +7,6 @@ urlpatterns = [
     path("api/health/", getHealth, name="health"),
     path("api-auth/", include("rest_framework.urls")),
     path("api/user/", include("user.urls")),
+    path("api/beam/", include("beam.urls")),
     path("api/visualizer/", include("visualizer.urls")),
 ]

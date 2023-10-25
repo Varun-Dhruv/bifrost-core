@@ -1,16 +1,16 @@
-version: '3.0'
+version: "3.0"
 volumes:
   postgres_data:
-
+  redis_data:
 services:
   app:
     image: "varun10000/bifrost-core:latest"
     container_name: bifrost-core
     command: sh -c "
-              cd app &&
-              python manage.py makemigrations &&
-              python manage.py migrate &&
-              python manage.py runserver 0.0.0.0:80"
+      cd app &&
+      python manage.py makemigrations &&
+      python manage.py migrate &&
+      python manage.py runserver 0.0.0.0:80"
     build:
       context: ./src
       dockerfile: Dockerfile
@@ -24,9 +24,32 @@ services:
     volumes:
       - ./src/app:/code/app
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      kinto:
+        condition: service_started
+  celery-worker:
+    image: "varun10000/bifrost-core:latest"
+    container_name: celery-worker
+    command: sh -c  "cd app && celery -A core worker -l INFO"
+    build:
+      context: ./src
+      dockerfile: Dockerfile
+    restart: always
+    env_file:
+      - ./envs/.env.production
+    profiles:
+      - "dev"
+    volumes:
+      - ./src/app:/code/app
+    depends_on:
+      app:
+        condition: service_started
+
   postgres:
-    image: postgres:14.0
+    image: postgres:14
     container_name: postgres
     restart: always
     volumes:
@@ -43,3 +66,60 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+  kinto:
+    image: "kinto/kinto-server:latest"
+    container_name: kinto
+    restart: always
+    command: sh -c "kinto start"
+    env_file:
+      - ./envs/.env.production
+    ports:
+      - 8888:8888
+    profiles:
+      - "dev"
+    depends_on:
+      postgres:
+        condition: service_healthy
+  redis:
+    image: "redis:7.0"
+    container_name: redis
+    restart: always
+    ports:
+      - 6379:6379
+    env_file:
+      - ./envs/.env.production
+    volumes:
+      - redis_data:/data
+    profiles:
+      - "dev"
+      - "cache"
+  kafka:
+    image: "bitnami/kafka:3.4"
+    container_name: kafka
+    restart: always
+    ports:
+      - 9092:9092
+      - 9999:9999
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: localhost
+      KAFKA_PORT: 9092
+      KAFKA_LISTENERS: PLAINTEXT://:9092
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    depends_on:
+      - zookeeper
+    profiles:
+      - "message-broker"
+  zookeeper:
+    image: "zookeeper:3.8.3"
+    container_name: zookeeper
+    restart: always
+    ports:
+      - 2181:2181
+      - 2888:2888
+      - 3888:3888
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+      ALLOW_ANONYMOUS_LOGIN: yes
+    profiles:
+      - "message-broker"

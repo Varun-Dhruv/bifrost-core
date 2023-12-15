@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flink-jobserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flink-jobserver
+      component: jobserver
+  template:
+    metadata:
+      labels:
+        app: flink-jobserver
+        component: jobserver
+    spec:
+      containers:
+      - name: jobserver
+        image: apache/beam_flink1.16_job_server:latest
+        args: ["--flink-master=flink-jobmanager:8081"]
+        ports:
+        - containerPort: 8099
+          name: job-port
+        - containerPort: 8098
+          name: artifact
+        livenessProbe:
+          tcpSocket:
+            port: 6123
+          initialDelaySeconds: 30
+          periodSeconds: 60
+        securityContext:
+          runAsUser: 9999
+        resources:
+          limits:
+            cpu: "1.0"
+            memory: 512Mi
+          requests:
+            cpu: "0.5"
+            memory: 256Mi
+  
+
+
+
+        

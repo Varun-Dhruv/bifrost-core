@@ -4,6 +4,23 @@ from datetime import datetime
 import apache_beam as beam
 
 
+def transform(lines, pipeline, transforms):
+    pass
+
+
+class FormatAsJson(beam.DoFn):
+    def process(self, element):
+        # Convert the element to a JSON string
+        import json
+
+        for k, v in element.items():
+            if isinstance(v, datetime.datetime):
+                element[k] = v.timestamp()
+            elif isinstance(v, datetime.date):
+                element[k] = v.isoformat()
+        yield json.dumps(element)
+
+
 class DateTimeEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, datetime):

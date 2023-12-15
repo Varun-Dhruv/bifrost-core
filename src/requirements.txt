@@ -6,7 +6,7 @@
 #
 amqp==5.1.1
     # via kombu
-apache-beam[dataframe]==2.50.0
+apache-beam[gcp]==2.47.0
     # via -r src/requirements.in
 asgiref==3.7.2
     # via django
@@ -18,11 +18,15 @@ billiard==4.1.0
     # via celery
 build==1.0.3
     # via pip-tools
+cachetools==4.2.4
+    # via
+    #   apache-beam
+    #   google-auth
 celery[redis]==5.3.4
     # via -r src/requirements.in
 certifi==2023.7.22
     # via requests
-charset-normalizer==3.3.0
+charset-normalizer==3.3.2
     # via requests
 click==8.1.7
     # via
@@ -43,13 +47,13 @@ crcmod==1.7
     # via apache-beam
 dill==0.3.1.1
     # via apache-beam
-django==4.2.5
+django==4.2.6
     # via
     #   -r src/requirements.in
     #   django-cors-headers
     #   django-filter
     #   djangorestframework
-django-cors-headers==4.2.0
+django-cors-headers==4.3.0
     # via -r src/requirements.in
 django-filter==23.3
     # via -r src/requirements.in
@@ -59,53 +63,181 @@ dnspython==2.4.2
     # via pymongo
 docopt==0.6.2
     # via hdfs
-fastavro==1.8.3
+fastavro==1.9.0
     # via apache-beam
 fasteners==0.19
+    # via
+    #   apache-beam
+    #   google-apitools
+google-api-core[grpc]==2.12.0
+    # via
+    #   google-cloud-bigquery
+    #   google-cloud-bigquery-storage
+    #   google-cloud-bigtable
+    #   google-cloud-core
+    #   google-cloud-datastore
+    #   google-cloud-dlp
+    #   google-cloud-language
+    #   google-cloud-pubsub
+    #   google-cloud-pubsublite
+    #   google-cloud-recommendations-ai
+    #   google-cloud-spanner
+    #   google-cloud-videointelligence
+    #   google-cloud-vision
+google-apitools==0.5.31
     # via apache-beam
-flink==1.0
-    # via -r src/requirements.in
-grpcio==1.59.0
+google-auth==2.23.4
+    # via
+    #   apache-beam
+    #   google-api-core
+    #   google-auth-httplib2
+    #   google-cloud-core
+google-auth-httplib2==0.1.1
     # via apache-beam
-hdfs==2.7.2
+google-cloud-bigquery==3.13.0
     # via apache-beam
-httplib2==0.22.0
+google-cloud-bigquery-storage==2.22.0
     # via apache-beam
+google-cloud-bigtable==2.21.0
+    # via apache-beam
+google-cloud-core==2.3.3
+    # via
+    #   apache-beam
+    #   google-cloud-bigquery
+    #   google-cloud-bigtable
+    #   google-cloud-datastore
+    #   google-cloud-spanner
+google-cloud-datastore==2.18.0
+    # via apache-beam
+google-cloud-dlp==3.12.3
+    # via apache-beam
+google-cloud-language==2.11.1
+    # via apache-beam
+google-cloud-pubsub==2.18.4
+    # via
+    #   apache-beam
+    #   google-cloud-pubsublite
+google-cloud-pubsublite==1.8.3
+    # via apache-beam
+google-cloud-recommendations-ai==0.10.5
+    # via apache-beam
+google-cloud-spanner==3.40.1
+    # via apache-beam
+google-cloud-videointelligence==2.11.4
+    # via apache-beam
+google-cloud-vision==3.4.5
+    # via apache-beam
+google-crc32c==1.5.0
+    # via google-resumable-media
+google-resumable-media==2.6.0
+    # via google-cloud-bigquery
+googleapis-common-protos[grpc]==1.61.0
+    # via
+    #   google-api-core
+    #   grpc-google-iam-v1
+    #   grpcio-status
+grpc-google-iam-v1==0.12.6
+    # via
+    #   google-cloud-bigtable
+    #   google-cloud-pubsub
+    #   google-cloud-spanner
+grpcio==1.59.2
+    # via
+    #   apache-beam
+    #   google-api-core
+    #   google-cloud-bigquery
+    #   google-cloud-pubsub
+    #   google-cloud-pubsublite
+    #   googleapis-common-protos
+    #   grpc-google-iam-v1
+    #   grpcio-status
+grpcio-status==1.59.2
+    # via
+    #   google-api-core
+    #   google-cloud-pubsub
+    #   google-cloud-pubsublite
+hdfs==2.7.3
+    # via apache-beam
+httplib2==0.21.0
+    # via
+    #   apache-beam
+    #   google-apitools
+    #   google-auth-httplib2
+    #   oauth2client
 idna==3.4
     # via requests
 kinto-http==11.0.1
     # via -r src/requirements.in
 kombu==5.3.2
     # via celery
-markdown==3.4.4
+markdown==3.5.1
     # via -r src/requirements.in
 numpy==1.24.4
     # via
     #   apache-beam
-    #   pandas
     #   pyarrow
+oauth2client==4.1.3
+    # via google-apitools
 objsize==0.6.1
     # via apache-beam
-orjson==3.9.7
+orjson==3.9.10
     # via apache-beam
-packaging==23.1
-    # via build
-pandas==1.5.3
-    # via apache-beam
+overrides==6.5.0
+    # via google-cloud-pubsublite
+packaging==23.2
+    # via
+    #   build
+    #   google-cloud-bigquery
 pip-tools==7.3.0
     # via -r src/requirements.in
 prompt-toolkit==3.0.39
     # via click-repl
 proto-plus==1.22.3
-    # via apache-beam
-protobuf==4.23.4
     # via
     #   apache-beam
+    #   google-cloud-bigquery
+    #   google-cloud-bigquery-storage
+    #   google-cloud-bigtable
+    #   google-cloud-datastore
+    #   google-cloud-dlp
+    #   google-cloud-language
+    #   google-cloud-pubsub
+    #   google-cloud-recommendations-ai
+    #   google-cloud-spanner
+    #   google-cloud-videointelligence
+    #   google-cloud-vision
+protobuf==4.22.5
+    # via
+    #   apache-beam
+    #   google-api-core
+    #   google-cloud-bigquery
+    #   google-cloud-bigquery-storage
+    #   google-cloud-bigtable
+    #   google-cloud-datastore
+    #   google-cloud-dlp
+    #   google-cloud-language
+    #   google-cloud-pubsub
+    #   google-cloud-recommendations-ai
+    #   google-cloud-spanner
+    #   google-cloud-videointelligence
+    #   google-cloud-vision
+    #   googleapis-common-protos
+    #   grpc-google-iam-v1
+    #   grpcio-status
     #   proto-plus
-psycopg2-binary==2.9.8
+psycopg2-binary==2.9.9
     # via -r src/requirements.in
 pyarrow==11.0.0
     # via apache-beam
+pyasn1==0.5.0
+    # via
+    #   oauth2client
+    #   pyasn1-modules
+    #   rsa
+pyasn1-modules==0.3.0
+    # via
+    #   google-auth
+    #   oauth2client
 pydot==1.4.2
     # via apache-beam
 pymongo==4.5.0
@@ -120,29 +252,38 @@ python-dateutil==2.8.2
     # via
     #   apache-beam
     #   celery
-    #   pandas
+    #   google-cloud-bigquery
 python-dotenv==1.0.0
     # via -r src/requirements.in
 pytz==2023.3.post1
     # via
     #   apache-beam
     #   djangorestframework
-    #   pandas
 redis==4.6.0
     # via celery
-regex==2023.8.8
+regex==2023.10.3
     # via apache-beam
 requests==2.31.0
     # via
     #   apache-beam
+    #   google-api-core
+    #   google-cloud-bigquery
     #   hdfs
     #   kinto-http
+rsa==4.9
+    # via
+    #   google-auth
+    #   oauth2client
 six==1.16.0
     # via
+    #   google-apitools
     #   hdfs
+    #   oauth2client
     #   python-dateutil
 sqlparse==0.4.4
-    # via django
+    # via
+    #   django
+    #   google-cloud-spanner
 tomli==2.0.1
     # via
     #   build
@@ -156,16 +297,16 @@ tzdata==2023.3
     # via celery
 unidecode==1.3.7
     # via kinto-http
-urllib3==2.0.5
+urllib3==2.0.7
     # via requests
 vine==5.0.0
     # via
     #   amqp
     #   celery
     #   kombu
-wcwidth==0.2.8
+wcwidth==0.2.9
     # via prompt-toolkit
-wheel==0.41.2
+wheel==0.41.3
     # via pip-tools
 zstandard==0.21.0
     # via apache-beam

@@ -15,7 +15,6 @@ def user_login(request):
     if serializer.is_valid():
         email = serializer.validated_data["email"]
         password = serializer.validated_data["password"]
-        print(email, password)
         user = authenticate(request, username=email, password=password)
 
         if user is not None:

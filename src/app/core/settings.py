@@ -111,6 +111,7 @@ REST_FRAMEWORK = {
 }
 
 AUTHENTICATION_CLASSES = ("rest_framework.authentication.TokenAuthentication",)
+
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
 ]

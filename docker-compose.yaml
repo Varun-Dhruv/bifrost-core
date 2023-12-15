@@ -2,6 +2,13 @@ version: "3.0"
 volumes:
   postgres_data:
   redis_data:
+  jobmanager-checkpoints:
+  taskmanager-checkpoints:
+  job-jars:
+networks:
+  flink:
+    name: flink
+    driver: bridge
 services:
   app:
     image: "varun10000/bifrost-core:latest"
@@ -47,7 +54,105 @@ services:
     depends_on:
       app:
         condition: service_started
+  job-server:
+    image: apache/beam_flink1.16_job_server:latest
+    container_name: job-server
+    ports:
+      - 8099:8099
+      - 8098:8098
+    command: --flink-master=flink-jobmanager:8081
+    profiles:
+      - "dev"
+      - "flink"
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=localhost
+      - JOB_MANAGER_RPC_PORT=6123
+      - JOB_MANAGER_HEAP_SIZE=1024m
+      - JOB_MANAGER_WEB_PORT=8081
+      - REST_PORT=8081
+      - FLINK_MASTER=localhost:8081
+      - JOB_PORT=8099
+      - PARRALLELISM=2
+      - JOB_ARTIFACT_PORT=8098
+      - JOB_JAR_DIRECTORY=/opt/job-jars
+      - JOB_ARTIFACT_DIRECTORY=/opt/job-artifacts
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+    volumes:
+      - job-jars:/opt/job-jars
+  flink-jobmanager:
+    image: "apache/flink:1.16"
+    container_name: flink-jobmanager
+    command: jobmanager
+    profiles:
+      - "dev"
+      - "flink"
+    ports:
+      - 6123:6123
+      - 6124:6124
+      - 8081:8081
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=flink-jobmanager
+      - JOB_MANAGER_RPC_PORT=6123
+      - JOB_MANAGER_HEAP_SIZE=1024m
+      - JOB_MANAGER_WEB_PORT=8081
+      - JOB_MANAGER_REST_PORT=8081
+      - REST_PORT=8081
+      - PARRALLELISM=2
+      - JOBMANAGER_MEMORY=1600m
+    volumes:
+      - jobmanager-checkpoints:/opt/flink/usrlib/flink/checkpoints
 
+  flink-taskmanager:
+    image: apache/flink:1.16
+    command: taskmanager
+    container_name: flink-taskmanager
+    profiles:
+      - "dev"
+      - "flink"
+    depends_on:
+      - flink-jobmanager
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=flink-jobmanager
+      - JOB_MANAGER_RPC_PORT=6123
+      - TASK_MANAGER_RPC_PORT=6122
+      - JOB_MANAGER_HEAP_SIZE=1024m
+      - JOB_MANAGER_WEB_PORT=8081
+      - JOB_MANAGER_REST_PORT=8081
+      - PARRALLELISM=2
+      - BEAM_PROVISION_ENDPOINT=flink-jobmanager:8081
+      - BEAM_ARTIFACT_ENDPOINT=flink-jobmanager:8098
+    volumes:
+      - jobmanager-checkpoints:/opt/flink/usrlib/flink/checkpoints
+  flink-worker:
+    image: "varun10000/bifrost-core:latest"
+    build:
+      context: ./src
+      dockerfile: Dockerfile
+    working_dir: "/code/app"
+    command: sh -c "/opt/apache/beam/boot --worker_pool"
+    # entrypoint: "" 
+    container_name: flink-worker
+    network_mode: "service:flink-taskmanager"
+    profiles:
+      - "dev"
+      - "flink"
+    depends_on:
+      - flink-jobmanager
+    volumes:
+      - ./src/app:/code/app
+    environment:
+      - JOB_MANAGER_RPC_ADDRESS=flink-jobmanager
+      - JOB_MANAGER_RPC_PORT=6123
+      - TASK_MANAGER_RPC_PORT=6122
+      - JOB_MANAGER_HEAP_SIZE=1024m
+      - JOB_MANAGER_WEB_PORT=8081
+      - JOB_MANAGER_REST_PORT=8081
+      - PARRALLELISM=2
+      - BEAM_PROVISION_ENDPOINT=flink-jobmanager:8081
+      - BEAM_ARTIFACT_ENDPOINT=flink-jobmanager:8098
   postgres:
     image: postgres:14
     container_name: postgres

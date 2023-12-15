@@ -8,6 +8,6 @@ apache-beam
 psycopg2-binary
 django-cors-headers
 kinto-http
-flink
-apache_beam[dataframe]
+apache_beam[gcp]==2.47.0
 celery[redis]
+
